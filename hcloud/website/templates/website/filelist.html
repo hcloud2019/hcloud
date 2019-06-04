@@ -1,0 +1,217 @@
+{% extends "website/home.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
+<script src="{% static 'vendor/dist/min/dropzone.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'vendor/dist/min/dropzone.min.css'%}"/>
+<style type="text/css"></style>
+<div class="container">
+    <div class="row">
+        <p>
+        <div>
+            <button class="ui Secondary button" style="margin-left: 15px" onclick="make_folder()"><i
+                    class="plus icon"></i>Folder
+            </button>
+            <div style="display: none;" id="dir_make">
+                <input type="text" id="dir_name">
+                <button class="ui Secondary button" onclick="make_directory()">Create</button>
+            </div>
+        </div>
+        </p>
+        <div>
+            <button class="ui Secondary button" onclick="search_file()"><i class="search icon"></i>Search</button>
+            <input type="text" id="file_name">
+        </div>
+        </p>
+    </div>
+    <p>
+    <div>
+        <form method="post" enctype="multipart/form-data" action="{% url 'upload' path=path %}"
+              class="dropzone" id="myDropzone">
+                <div class="dz-default dz-message" data-dz-message="">
+                    <br>
+                    <span>Drag and upload your file</span>
+                </div>
+            {% csrf_token %}
+        </form>
+    </div>
+    </p>
+
+
+    <p>
+        <select id="sort-select" onchange="location= this.value;">
+            <option value="" disabled selected>파일 정렬</option>
+            <option class="sort-date" value="?sort=date">최신순</option>
+            <option class="sort-date-end" value="?sort=date-end">오래된순</option>
+            <option class="sort-name" value="?sort=name">이름순</option>
+        </select>
+    </p>
+
+
+    <table class="ui striped table">
+        <thead>
+        <tr>
+            <th class="four wide">/{{ path }}</th>
+            <th class="center aligned">New Path</th>
+            <th class="collapsing">Copy</th>
+            <th class="collapsing">Move</th>
+            <th class="collapsing">Delete</th>
+            <th class="collapsing">Download</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% if path != "" %}
+            <td>
+                <a onclick="go_parent()"><i class="folder open outline icon"></i> ...</a>
+            </td>
+        {% endif %}
+
+        <tr>
+            {% for file in files %}
+            <td class="collapsing">
+                {% if file.type == "directory" %}
+                {% with new_path=path|add:file.name|add:'/' %}
+                <a href="{% url 'filelist' path=new_path %}"><i class="folder outline icon"></i> {{file.name}}</a>
+                {% endwith %}
+                {% else %}
+                {% with new_path=path|add:file.name %}
+                <a style="color: black" href="{% url 'view' path=new_path %}"><i class="file outline icon"></i>
+                    {{file.name}} </a>
+                {% endwith %}
+                {% endif %}
+            </td>
+            <td>
+                {% if file.type != "directory" %}
+                {% with old_path=path|add:file.name %}
+                <div class="ui transparent input">
+                    <input placeholder="dir/file" type="text" id="{{ old_path }}">
+                </div>
+                
+                {% endwith %}
+                {% endif %}
+
+            </td>
+            <td class="collapsing">
+                <div>
+                    {% if file.type != "directory" %}
+                    {% with old_path=path|add:file.name %}
+                    <a style="color: black" id="copy_path" onclick="copy('{{ old_path }}')"><i
+                            class="copy outline icon"></i></a>
+                    {% endwith %}
+                    {% endif %}
+                </div>
+            </td>
+
+            <td class="center aligned collapsing">
+                {% if file.type != "directory" %}
+                {% with old_path=path|add:file.name %}
+                <a style="color: black" onclick="move('{{ old_path }}')"><i class="arrow right icon"></i></a>
+                {% endwith %}
+                {% endif %}
+            </td>
+
+            <td class="center aligned collapsing">
+                {% if file.time != '2019-05-01 00:00:54+00:00' %}
+                {% with new_path=path|add:file.name %}
+                <a style="color: black" href="{% url 'delete' path=new_path %}"><i
+                        class="trash alternate outline icon"></i></a>
+                {% endwith %}
+                {% endif %}
+            </td>
+
+            <td class="center aligned collapsing">
+                {% if file.type != "directory" %}
+                {% with new_path=path|add:file.name %}
+                <a style="color: black" href="{% url 'download' path=new_path %}"><i
+                        class="cloud download icon"></i></a>
+                {% endwith %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+
+<script type="text/javascript">
+    function uploadChange(file) {
+        var el = file.parentNode.parentNode.getElementsByTagName("*");
+        for (var i = 0; i < el.length; i++) {
+            var node = el[i];
+            if (node.className == "file-text") {
+                node.innerHTML = file.value;
+                break;
+            }
+        }
+    }
+
+    function make_folder() {
+        document.getElementById("dir_make").style.display = "inline-block";
+    }
+
+    function make_directory() {
+
+        dir = document.getElementById("dir_name").value;
+        console.log(dir)
+        var dir_path = "{{ path }}";
+        new_path = dir_path + dir + '/';
+        console.log("newpath : " + new_path)
+        location.href = "{% url 'makefolder' path='' %}" + new_path;
+    }
+
+    function search_file() {
+        file = document.getElementById("file_name").value;
+        console.log(file);
+        location.href = "{% url 'search' file_name='' %}" + file;
+    }
+
+    //@TODO: Here
+    function folder_upload() {
+        console.log(1);
+    }
+
+    function folder_upload_active() {
+        document.getElementById("dir_upload").style.display = "inline-block";
+    }
+
+    function go_parent() {
+        var dir_path = "{{ path }}";
+        var dir_arr = dir_path.split('/');
+        dir_arr.pop();
+        dir_arr.pop();
+        var new_path = dir_arr.join('/');
+        location.href = "{% url 'filelist' path='' %}" + new_path;
+    }
+
+    function copy(old) {
+        var copy_path = document.getElementById(old).value;
+        location.href = "/copy/" + old + "&" + copy_path;
+    }
+
+    function move(old) {
+        var move_path = document.getElementById(old).value;
+        location.href = "/move/" + old + "&" + move_path;
+
+    }
+
+    Dropzone.options.myDropzone = {
+        maxFilesize: 10240,
+        init: function () {
+            this.on("uploadprogress", function (file, progress) {
+                console.log("File progress", progress);
+                });
+            this.on('success', function(file, message) {
+                if (this.files.length > 4) {
+                    this.removeFile(this.files[0]);
+                }
+                });
+            this.on('queuecomplete', function () {
+                location.reload();
+                });
+            }
+        }
+
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "website/home.html" %}
+{% load staticfiles %}
+{% block content %}
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="signup-form">
+                <form method="post">
+                    <h2>Sign up</h2>
+
+                    {% csrf_token %} {% for field in form %}
+                    <p>
+                        {{ field.label_tag }}
+                        <br> {{ field }} {% if field.help_text %}
+                        <small style="color: grey">{% autoescape off %}{{ field.help_text }}{% endautoescape %}</small>
+                        {% endif %} {% for error in field.errors %}
+                        <p style="color: red">{{ error }}</p>
+                        {% endfor %}
+                    </p>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary btn-block">Sign up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

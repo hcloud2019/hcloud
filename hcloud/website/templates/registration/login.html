@@ -1,0 +1,43 @@
+{% extends "website/home.html" %}
+{% load staticfiles %}
+{% block content %}
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <p>
+                <h2>Login</h2>
+            </p>
+
+            <div class="login-form">
+                <form action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="{{ form.username.id_for_label }}">ID</label>
+                        <input class="form-control" id="{{ form.username.id_for_label }}" maxlength="15"
+                            name="{{ form.username.html_name }}" type="text" />
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.password.id_for_label }}">Password</label>
+                        <input class="form-control" id="{{ form.password.id_for_label }}" maxlength="120"
+                            name="{{ form.password.html_name }}" type="password" />
+                    </div>
+
+                    <br>
+                    <input type="submit" class="btn btn-primary btn-block" value="Login" role="button" />
+                    <input type="hidden" name="next" value="{{ next }}" />
+            </div>
+            </form>
+            <a href="{% url 'social:begin' 'google-oauth2' %}"><button class="btn btn-danger" style="width: 100%">G+
+                    Login</button></a>
+            <p class="text-center"><a href="{% url 'signup' %}">Create an Account</a></p>
+            {% if form.errors %}
+            <p style="text-align: center">이름과 비밀번호가 일치하지 않습니다. 다시 시도해주세요.</p>
+            {% endif %}
+        </div>
+        <br>
+    </div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "website/home.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'semantic/dist/semantic.min.css' %}">
+<script src="{% static 'vendor/dist/min/dropzone.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'vendor/dist/min/dropzone.min.css'%}"/>
+<style type="text/css"></style>
+<div class="container">
+    <table class="ui striped table">
+        <thead>
+        <tr>
+            <th class="four wide"> Name</th>
+            <th class="center aligned">Path</th>
+            <th class="center aligned">Move to File</th>
+            <th class="collapsing">Delete</th>
+            <th class="collapsing">Download</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            {% for file in files %}
+            <td class="collapsing">
+                {% with new_path=file %}
+                <a style="color: black" href="{% url 'view' path=new_path %}"><i class="file outline icon"></i>
+                    {{name}} </a>
+                {% endwith %}
+            </td>
+            <td>
+                {{file}}
+            </td>
+
+            <td class="center aligned collapsing">
+                {% with new_path=file|cut:name %}
+                    <a style="color: black" href = "{% url 'filelist' path=new_path %}"><i class="arrow right icon"></i></a>
+                {% endwith %}
+            </td>
+
+            <td class="center aligned collapsing">
+                {% with new_path=file %}
+                    <a style="color: black" href="{% url 'delete' path=new_path %}"><i class="trash alternate outline icon"></i></a>
+                {% endwith %}
+            </td>
+
+            <td class="center aligned collapsing">
+                {% with new_path=file %}
+                    <a style="color: black" href="{% url 'download' path=new_path %}"><i class="cloud download icon"></i></a>
+                {% endwith %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+
+<script type="text/javascript">
+    function uploadChange(file) {
+        var el = file.parentNode.parentNode.getElementsByTagName("*");
+        for (var i = 0; i < el.length; i++) {
+            var node = el[i];
+            if (node.className == "file-text") {
+                node.innerHTML = file.value;
+                break;
+            }
+        }
+    }
+
+   
+</script>
+{% endblock %}
