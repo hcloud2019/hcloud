@@ -210,7 +210,7 @@ def search(request, file_name):
         conn.rollback()
 
     for i in search:
-        if(file_name in i):
+        if(file_name in i.split('/')[-1]):
             files.append(i)
 
     #완전 일치하는 파일이 없는 경우
