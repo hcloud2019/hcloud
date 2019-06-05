@@ -112,7 +112,8 @@ def delete(request, path):
 def download(request, path):
     cookie = {'sessionid': request.session.session_key}
     requests.get('http://localhost:8000/restapi/file/' + path, cookies=cookie)
-    local_path = os.path.join(settings.MEDIA_ROOT, path)
+    user = request.user
+    local_path = os.path.join(settings.MEDIA_ROOT, user.username+"/"+path)
     if os.path.exists(local_path):
         with open(local_path, 'rb') as down_file:
             response = HttpResponse(
@@ -127,7 +128,8 @@ def download(request, path):
 def view(request, path):
     cookie = {'sessionid': request.session.session_key}
     requests.get('http://localhost:8000/restapi/file/' + path, cookies=cookie)
-    local_path = os.path.join(settings.MEDIA_ROOT, path)
+    user = request.user
+    local_path = os.path.join(settings.MEDIA_ROOT, user.username+"/"+path)
     
     if os.path.exists(local_path):
         with open(local_path, 'rb') as down_file:

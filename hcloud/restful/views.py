@@ -60,8 +60,8 @@ class FileDetail(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, path="/", format=None):
-        file = 'media/'+path
         user = request.user
+        file = 'media/'+user.username+"/"+path
         s3_conn.download_file(s3_conn.BUCKET, user.username, file, path)
         return Response({'file': file})
 
