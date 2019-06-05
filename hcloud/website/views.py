@@ -19,7 +19,7 @@ import json
 import urllib
 import psycopg2
 
-conn = psycopg2.connect(host='localhost', dbname='hcloud', user='postgres', password='', port='5432')
+conn = psycopg2.connect(host='localhost', dbname='hcloud', user='', password='', port='5432')
 
 def signup(request):
     if request.method == 'POST':
@@ -169,7 +169,9 @@ def move(request, old_path, new_path):
 
 @login_required
 def search(request, file_name):
+    user_name = request.user.username
     file_name = file_name[0:len(file_name)-1]
+    files = []
     #connect db
     try:
         cur = conn.cursor()
@@ -177,12 +179,13 @@ def search(request, file_name):
         print("Connection Error")
     #select query
     try:
-        temp = "'%" + file_name+"'"
-        sql = "select file_name from public.file_name where file_name LIKE %s " % (temp)
+        temp = "'%" + user_name + "%" + file_name+ "%'"
+        print(temp)
+        sql = "select distinct file from public.restful_file where file LIKE %s " % (temp)
         cur.execute(sql)
         search=[]
         data = cur.fetchall()
-        files = []
+        print(data)
         for i in data :
             temp_item=""
             temp = i[0].split('/')
@@ -195,21 +198,29 @@ def search(request, file_name):
                     else :
                         temp_item += (temp[j]+'/')
 
+                print(temp_item)
                 search.append(temp_item)
 
-        for item in search:
-            if(file_name==item.split('/')[-1]):
-                files.append(item)
+        # for item in search:
+        #     if(file_name==item.split('/')[-1]):
+        #         print(item)
+        #         files.append(item)
         
     except:
         conn.rollback()
+
+    for i in search:
+        if(file_name in i):
+            files.append(i)
+
     #완전 일치하는 파일이 없는 경우
     if (len(files)==0):
         return redirect('filelist', path="")
-    
-    dic_files = {"files" : []}
-    for file in files :
-        dic_files["files"].append(file)
 
-    dic_files["name"] = file_name
-    return render(request, 'Website/search.html', dic_files)
+    print(files)
+    dic_files = dict()
+    for file in files :
+        dic_files[file] = file.split('/')[-1]
+
+    print(dic_files)
+    return render(request, 'Website/search.html', { "files" : dic_files})

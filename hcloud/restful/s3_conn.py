@@ -5,7 +5,7 @@ import datetime
 from hcloud import aws_conf
 import psycopg2
 
-conn = psycopg2.connect(host='localhost', dbname='hcloud', user='postgres', password='', port='5432')
+conn = psycopg2.connect(host='localhost', dbname='hcloud', user='', password='', port='5432')
 
 BUCKET = aws_conf.AWS_STORAGE_BUCKET_NAME
 

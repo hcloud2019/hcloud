@@ -19,31 +19,31 @@
         </thead>
         <tbody>
         <tr>
-            {% for file in files %}
+            {% for key,value in files.items %}
             <td class="collapsing">
-                {% with new_path=file %}
+                {% with new_path=key %}
                 <a style="color: black" href="{% url 'view' path=new_path %}"><i class="file outline icon"></i>
-                    {{name}} </a>
+                    {{value}} </a>
                 {% endwith %}
             </td>
             <td>
-                {{file}}
+                {{key}}
             </td>
 
             <td class="center aligned collapsing">
-                {% with new_path=file|cut:name %}
+                {% with new_path=key|cut:value %}
                     <a style="color: black" href = "{% url 'filelist' path=new_path %}"><i class="arrow right icon"></i></a>
                 {% endwith %}
             </td>
 
             <td class="center aligned collapsing">
-                {% with new_path=file %}
+                {% with new_path=key %}
                     <a style="color: black" href="{% url 'delete' path=new_path %}"><i class="trash alternate outline icon"></i></a>
                 {% endwith %}
             </td>
 
             <td class="center aligned collapsing">
-                {% with new_path=file %}
+                {% with new_path=key %}
                     <a style="color: black" href="{% url 'download' path=new_path %}"><i class="cloud download icon"></i></a>
                 {% endwith %}
             </td>

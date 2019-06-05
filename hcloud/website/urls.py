@@ -7,7 +7,7 @@ urlpatterns = [
 
     # login url
     url(r'^accounts/signup/$', views.signup, name='signup'),
-    url(r'^accounts/logout/$', auth.logout, {'next_page': '/'}),
+    url(r'^accounts/logout/$', auth.LogoutView.as_view(template_name='website/home.html')),
 
     # file url
     url(r'^$', views.home, name='home'),
