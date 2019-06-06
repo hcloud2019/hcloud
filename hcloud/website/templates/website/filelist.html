@@ -35,8 +35,9 @@
             {% csrf_token %}
         </form>
     </div>
+    <div class = "item-loading-queue">
+    </div>
     </p>
-
 
     <p>
         <select id="sort-select" onchange="location= this.value;">
@@ -158,6 +159,20 @@
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     }
 
+    function displayItems(fileItemList){
+		var itemList = $('.item-loading-queue')
+		itemList.html("")
+		$.each(fileItemList, function(index, obj){
+			var item = obj
+            console.log(item)
+			var html_ = "<div class=\"progress\">" +
+			   "<div class=\"progress-bar\" role=\"progressbar\" style='width:" + item.progress + "' aria-valuenow='" + item.progress + "' aria-valuemin=\"0\" aria-valuemax=\"100\"></div></div>"
+
+            itemList.append("<div>" + item.name+"["+item.progress+"]" + html_ + "</div><hr/>")
+
+		})
+    }
+
     function uploadChange(file) {
         var el = file.parentNode.parentNode.getElementsByTagName("*");
         for (var i = 0; i < el.length; i++) {
@@ -217,6 +232,9 @@
         location.href = "/move/" + old + "&" + move_path;
 
     }
+
+
+
     var keepfile = []
 
 
@@ -228,7 +246,7 @@
         init: function () {
             //Restore initial message when queue has been completed
             this.on("addedfile", function (file) {
-                keepfile.push(file.name)
+                keepfile.push(file)
                 console.log(file.name);
                 console.log(file.size);
                 console.log(file.type);
@@ -308,7 +326,11 @@
                 };
 
                 s3.upload(params).on('httpUploadProgress', function(evt) {
-                    console.log("Uploaded :: " + parseInt((evt.loaded * 100) / evt.total)+'%');
+                    var progress =  parseInt((evt.loaded * 100) / evt.total)+'%'
+                    console.log("Uploaded :: " + progress);
+                    file.progress = progress
+                    displayItems(keepfile)
+
                 }).send(function (err, data) {
                   if (err) {
                       return alert('There was an error uploading your photo: ', err.message);
@@ -322,7 +344,7 @@
                       }
                       else{
                           if(!alert(file.name +" 업로드 완료. 남은 파일 갯수 : " + (keepfile.length - 1).toString())) {
-                              var index = keepfile.indexOf(file.name);
+                              var index = keepfile.indexOf(file);
                               if (index > -1) {
                                   keepfile.splice(index, 1);
                               }
@@ -335,11 +357,6 @@
 
             });
         }
-
-
-
-
-
     }
 
 </script>
