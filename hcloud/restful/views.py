@@ -7,11 +7,18 @@ from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 import os
+from hcloud import aws_conf
 from . import s3_conn
 
 from .models import File
 from .serializers import FileSerializer
 from urllib import parse
+
+AWS_UPLOAD_BUCKET = aws_conf.AWS_STORAGE_BUCKET_NAME
+AWS_UPLOAD_REGION = aws_conf.AWS_REGION
+AWS_UPLOAD_ACCESS_KEY_ID = aws_conf.AWS_ACCESS_KEY_ID
+AWS_UPLOAD_SECRET_KEY = aws_conf.AWS_SECRET_ACCESS_KEY
+AWS_IDENTITY_POOL = aws_conf.AWS_IDENTITY_POOL
 
 class FileList(APIView):
     authentication_classes = (SessionAuthentication, BasicAuthentication)
@@ -25,24 +32,42 @@ class FileList(APIView):
         data = s3_conn.list_path(s3_conn.BUCKET, user.username, path)
         return Response(data)
 
-    """
-    POST : File Upload
-    """
-    def post(self, request, path="/", format=None):
-        file_serializer = FileSerializer(data=request.data)
-        if file_serializer.is_valid():
-            file_serializer.save()
-            data = parse.unquote(file_serializer.data.get('file'))
-            file_path = '.' + data
-            user = request.user
-            data = s3_conn.upload_file(s3_conn.BUCKET, user.username, file_path, path+file_path.split('/')[-1])
-            if os.path.exists(file_path):
-                os.remove(file_path)
+    def post(self, request, *args, **kwargs):
 
-            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+        filename_req = request.data.get('filename')
+        file_path_req = request.data.get('file_path')
+        file_size_req = request.data.get('file_size')
+        if not filename_req:
+            return Response({"message": "A filename is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        username_str = str(request.user.username)
+
+        file_obj = File.objects.create(file=file_path_req, size=file_size_req)
+        upload_start_path = "{username}/".format(
+            username=username_str
+        )
+        _, file_extension = os.path.splitext(filename_req)
+        filename_final = "{file_obj_id}".format(
+            file_obj_id=file_path_req
+        )
+
+        final_upload_path = "{upload_start_path}{filename_final}".format(
+            upload_start_path=upload_start_path,
+            filename_final=filename_final,
+        )
+        if filename_req and file_extension:
+            file_obj.path = final_upload_path
+            file_obj.save()
+
+        data = {
+            "identity_pool": AWS_IDENTITY_POOL,
+            "bucket_name": AWS_UPLOAD_BUCKET,
+            "bucket_region": AWS_UPLOAD_REGION
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+
     """
     PUT : Make directory
     """

@@ -82,7 +82,7 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '5432',
         'NAME': 'hcloud',
-        'USER': 'postgres',
+        'USER': '',
         'PASSWORD': '',
 
         # 'ENGINE': 'django.db.backends.sqlite3',
