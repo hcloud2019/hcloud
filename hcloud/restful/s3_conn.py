@@ -55,36 +55,36 @@ def list_path(bucket, user, path):
     return {'files': files}
 
 
-def upload_file(bucket, user, local_path, key):
-    print(bucket, user, local_path, key)
-    # test-bucket-hcloud    hyuna    ./media/4_sk.png    4_sk.png
-    # ./media/5b.png    p2/5b.png
-
-    # public prefix
-    if (key.startswith("public")):
-        prefix = key
-    # private prefix
-    else:
-        prefix = user + "/" + key
-    try:
-        cur = conn.cursor()
-    except:
-        print("Connection Error")
-    try:
-        temp = "'" + prefix + "'"
-        sql = "Insert Into public.file_name (file_name) VALUES (%s)" % (temp)
-        print(sql)
-        cur.execute(sql)
-        conn.commit()
-    except:
-        conn.rollback()
-        print("ERROR : db insert")
-
-    path = '{}/{}'.format(user, key)
-    if key.startswith('public'):
-        path = '{}'.format(key)
-
-    return S3.upload_file(local_path, bucket, path)
+# def upload_file(bucket, user, local_path, key):
+#     print(bucket, user, local_path, key)
+#     # test-bucket-hcloud    hyuna    ./media/4_sk.png    4_sk.png
+#     # ./media/5b.png    p2/5b.png
+#
+#     # public prefix
+#     if (key.startswith("public")):
+#         prefix = key
+#     # private prefix
+#     else:
+#         prefix = user + "/" + key
+#     try:
+#         cur = conn.cursor()
+#     except:
+#         print("Connection Error")
+#     try:
+#         temp = "'" + prefix + "'"
+#         sql = "Insert Into public.file_name (file_name) VALUES (%s)" % (temp)
+#         print(sql)
+#         cur.execute(sql)
+#         conn.commit()
+#     except:
+#         conn.rollback()
+#         print("ERROR : db insert")
+#
+#     path = '{}/{}'.format(user, key)
+#     if key.startswith('public'):
+#         path = '{}'.format(key)
+#
+#     return S3.upload_file(local_path, bucket, path)
 
 
 def download_file(bucket, user, local_path, key):
@@ -122,13 +122,15 @@ def delete_path(bucket, user, path):
         print("Connection Error")
 
     try:
-        temp = "'%" + path + "%'"
-        sql = "select file_name from public.file_name where file_name LIKE %s " % (temp)
+        temp = "'%" + user + "%" + path + "%'"
+        print(temp)
+        sql = "select file from public.restful_file where file LIKE %s " % (temp)
+
         print(sql)
         cur.execute(sql)
         data = cur.fetchall()
         temp2 = "'" + data[0][0] + "'"
-        sql = "delete from public.file_name where file_name = %s" % (temp2)
+        sql = "delete from public.restful_file where file = %s" % (temp2)
         print(sql)
         cur.execute(sql)
         conn.commit()

@@ -164,7 +164,6 @@
 		itemList.html("")
 		$.each(fileItemList, function(index, obj){
 			var item = obj
-            console.log(item)
 			var html_ = "<div class=\"progress\">" +
 			   "<div class=\"progress-bar\" role=\"progressbar\" style='width:" + item.progress + "' aria-valuenow='" + item.progress + "' aria-valuemin=\"0\" aria-valuemax=\"100\"></div></div>"
 
@@ -289,8 +288,6 @@
                 },
                 url: posturl,
                 success: function(data){
-                    console.log(data.url)
-                    console.log(data.final_upload_path)
                     policyData = data
                 },
                 error: function(){
