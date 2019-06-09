@@ -180,8 +180,9 @@ def search(request, file_name):
     #select query
     try:
         temp = "'%" + user_name + "%" + file_name+ "%'"
+        temp2 = "'%public%" + file_name + "%'"
         print(temp)
-        sql = "select distinct file from public.restful_file where file LIKE %s " % (temp)
+        sql = "select distinct file from public.restful_file where file LIKE %s or file LIKE %s" % (temp,temp2)
         cur.execute(sql)
         search=[]
         data = cur.fetchall()

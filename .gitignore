@@ -17,7 +17,6 @@ __pycache__/
 env/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -107,7 +106,8 @@ ENV/
 .mypy_cache/
 
 # aws configutation file
-aws_conf.py
+hcloud/hcloud/aws_conf.py
+hcloud/envs.json
 
 # media file
 **/media/*

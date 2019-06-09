@@ -250,11 +250,18 @@
                 console.log(file.size);
                 console.log(file.type);
                 var policyData;
-                var fileItem = file;
                 var csrftoken = getCookie('csrftoken');
 
                 var posturl = "/restapi/list/"+"{{path}}"
-                var _file_path =  "{{user.username}}"+"/"+"{{path}}"+fileItem.name
+                var temp = "{{path}}"
+                var _file_path = ""
+                if(temp.split('/')[0] == "public"){
+                    _file_path = "{{path}}"+file.name
+                }
+                else{
+                    _file_path =  "{{user.username}}"+"/"+"{{path}}"+file.name
+                }
+
                 var temp_size = file.size / 1024
                 if(temp_size < 1024) {
                     temp_size = temp_size.toFixed(2)
@@ -312,7 +319,7 @@
                   params: {Bucket: policyData.bucket_name}
                 });
 
-                var keyPath = "{{user.username}}" + "/" + "{{path}}"+file.name
+                var keyPath = _file_path
                 var contentType = file.type != '' ? file.type : 'application/octet-stream'
 
 
